@@ -1,0 +1,53 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+
+// Struct to hold thread arguments
+struct ThreadArgs {
+    int thread_id;
+    char data[100];
+};
+
+// Function to be executed by the thread
+void *thread_function(void *arg) {
+    struct ThreadArgs *args = (struct ThreadArgs *)arg;
+    printf("Thread %d received data: %s\n", args->thread_id, args->data);
+    printf("Thread %d is processing data...\n", args->thread_id);
+    sleep(1); // Simulate some work
+    printf("Thread %d finished processing.\n", args->thread_id);
+    pthread_exit(NULL);
+}
+
+int main() {
+    pthread_t thread_id;
+    struct ThreadArgs args;
+
+    // Get input from the user
+    printf("Enter some data: ");
+    fgets(args.data, sizeof(args.data), stdin);
+
+    // Create a new thread
+    args.thread_id = 1; // Assuming only one thread for simplicity
+    if (pthread_create(&thread_id, NULL, thread_function, &args) != 0) {
+        perror("pthread_create");
+        return 1;
+    }
+
+    // Join the thread
+    if (pthread_join(thread_id, NULL) != 0) {
+        perror("pthread_join");
+        return 1;
+    }
+
+    // Compare thread IDs
+    pthread_t self_id = pthread_self();
+    if (pthread_equal(thread_id, self_id)) {
+        printf("The threads are equal.\n");
+    } else {
+        printf("The threads are not equal.\n");
+    }
+
+    // Exit the thread
+    printf("Main thread is exiting.\n");
+    pthread_exit(NULL);
+}
