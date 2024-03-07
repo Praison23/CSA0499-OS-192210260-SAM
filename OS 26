@@ -1,0 +1,52 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    FILE *file;
+    char filename[100];
+    char data[100];
+
+    // Get filename from user
+    printf("Enter filename: ");
+    scanf("%s", filename);
+
+    // Get data from user
+    printf("Enter data: ");
+    scanf("%s", data);
+
+    // Create a new file
+    file = fopen(filename, "w");
+    if (file == NULL) {
+        perror("Error creating file");
+        exit(EXIT_FAILURE);
+    }
+
+    // Write data to the file
+    if (fprintf(file, "%s\n", data) < 0) {
+        perror("Error writing to file");
+        fclose(file);
+        exit(EXIT_FAILURE);
+    }
+
+    // Close the file
+    fclose(file);
+
+    // Open the file for reading
+    file = fopen(filename, "r");
+    if (file == NULL) {
+        perror("Error opening file");
+        exit(EXIT_FAILURE);
+    }
+
+    // Read and print the contents of the file
+    char ch;
+    printf("Contents of %s:\n", filename);
+    while ((ch = fgetc(file)) != EOF) {
+        putchar(ch);
+    }
+
+    // Close the file
+    fclose(file);
+
+    return 0;
+}
