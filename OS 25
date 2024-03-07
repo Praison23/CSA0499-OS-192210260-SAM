@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <dirent.h>
+
+int main() {
+    // Demonstrate fcntl
+    int fd = open("example.txt", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+    if (fd == -1) {
+        perror("open");
+        exit(EXIT_FAILURE);
+    }
+
+    struct stat fileStat;
+    if (fstat(fd, &fileStat) < 0) {
+        perror("fstat");
+        close(fd);
+        exit(EXIT_FAILURE);
+    }
+
+    printf("File size: %ld bytes\n", fileStat.st_size);
+
+    // Demonstrate lseek
+    off_t offset = lseek(fd, 0, SEEK_END);
+    printf("Current position: %ld\n", offset);
+
+    // Demonstrate opendir and readdir
+    DIR *dir = opendir(".");
+    if (dir == NULL) {
+        perror("opendir");
+        close(fd);
+        exit(EXIT_FAILURE);
+    }
+
+    struct dirent *entry;
+    printf("Contents of current directory:\n");
+    while ((entry = readdir(dir)) != NULL) {
+        printf("%s\n", entry->d_name);
+    }
+    closedir(dir);
+
+    // Cleanup
+    close(fd);
+
+    return 0;
+}
